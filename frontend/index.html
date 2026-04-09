@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Optimizer & Plagiarism Detector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amazon+Ember:wght@400;700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --amazon-orange: #FF9900;
+      --amazon-dark: #131921;
+      --amazon-blue: #232F3E;
+      --amazon-blue-light: #37475A;
+      --amazon-link: #007185;
+      --amazon-link-hover: #C7511F;
+      --amazon-yellow: #FEBD69;
+      --amazon-green: #067D62;
+      --amazon-red: #B12704;
+      --bg: #EAEDED;
+      --surface: #FFFFFF;
+      --text: #0F1111;
+      --text-muted: #565959;
+      --border: #D5D9D9;
+      --radius: 8px;
+      --mono: "Courier New", "Courier", monospace;
+      --body: "Nunito Sans", "Arial", sans-serif;
+      --shadow: 0 2px 5px rgba(15,17,17,.15);
+      --shadow-hover: 0 4px 12px rgba(15,17,17,.2);
+    }
+
+    /* DARK THEME VARIABLES */
+    body.dark {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --text: #e6edf3;
+      --text-muted: #9da7b3;
+      --border: #30363d;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* ===== TOP NAV BAR ===== */
+    .topbar {
+      background: var(--amazon-dark);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 2px solid var(--amazon-orange);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--amazon-orange);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-icon svg { width: 22px; height: 22px; fill: #131921; }
+
+    .brand-name {
+      line-height: 1.1;
+    }
+    .brand-name .title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: 0.3px;
+    }
+    .brand-name .subtitle {
+      font-size: 10px;
+      color: var(--amazon-yellow);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .univ-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .univ-logo img {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--amazon-orange);
+      object-fit: cover;
+      background: #fff;
+    }
+    .univ-info {
+      text-align: right;
+    }
+    .univ-info .univ-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amazon-yellow);
+      letter-spacing: 0.4px;
+      line-height: 1.3;
+    }
+    .univ-info .univ-tagline {
+      font-size: 9px;
+      color: #8e9696;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== SECONDARY NAV TABS ===== */
+    .secondary-nav {
+      background: var(--amazon-blue);
+      padding: 0 20px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .tab {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #FFFFFF;
+      border-radius: 3px 3px 0 0;
+      transition: background 0.15s, border-color 0.15s;
+      font-family: var(--body);
+      margin-top: 4px;
+    }
+    .tab:hover { background: var(--amazon-blue-light); }
+    .tab.active {
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border);
+      border-bottom-color: var(--bg);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 20px 40px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-header h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-header h3 .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--amazon-orange);
+      display: inline-block;
+    }
+    .card-body { padding: 16px; }
+
+    /* ===== API HOST ROW ===== */
+    .api-row {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 14px;
+      margin-bottom: 18px;
+    }
+    .api-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .api-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amazon-link);
+    }
+    .api-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--amazon-green);
+      flex-shrink: 0;
+    }
+
+    /* ===== EDITORS GRID ===== */
+    .editors-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    @media(max-width: 768px) { .editors-grid { grid-template-columns: 1fr; } }
+
+    .editor-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .editor-card:focus-within {
+      border-color: var(--amazon-orange);
+      box-shadow: 0 0 0 3px rgba(255,153,0,0.2);
+    }
+    .editor-label {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 7px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .editor-label .badge {
+      background: var(--amazon-orange);
+      color: #131921;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    textarea {
+      width: 100%;
+      height: 280px;
+      background: #0d1117;
+      border: none;
+      padding: 14px;
+      color: #56d364;
+      font-family: var(--mono);
+      font-size: 13px;
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+    }
+    textarea::placeholder { color: #3d4f3e; }
+
+    /* ===== ACTION BUTTONS ===== */
+    .action-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    button.run {
+      background: linear-gradient(180deg, #FFD814 0%, #FFA41C 100%);
+      color: #0F1111;
+      border: 1px solid #FCD200;
+      padding: 10px 32px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: var(--body);
+      box-shadow: 0 2px 5px rgba(213,162,0,0.4);
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    button.run:hover {
+      background: linear-gradient(180deg, #F7CA00 0%, #F08804 100%);
+      box-shadow: 0 4px 10px rgba(213,162,0,0.5);
+      transform: translateY(-1px);
+    }
+    button.run:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    button.run .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #131921;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== ERROR BOX ===== */
+    .error-box {
+      display: none;
+      background: #fdf0f0;
+      border: 1px solid #f5c6c6;
+      border-left: 4px solid var(--amazon-red);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--amazon-red);
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    .error-box.show { display: block; }
+
+    /* ===== RESULTS PANEL ===== */
+    .results-panel { display: none; animation: fadeUp 0.35s ease; }
+    .results-panel.show { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .score-section { display: flex; align-items: stretch; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .score-card {
+      background: linear-gradient(135deg, #0f3443, #34e89e10);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 28px;
+      text-align: center;
+      min-width: 140px;
+    }
+    .score-number { font-size: 52px; font-weight: 800; color: var(--amazon-orange); line-height: 1; }
+    .score-label { font-size: 10px; color: #8e9696; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+    .verdict-card { flex: 1; border-radius: var(--radius); padding: 16px 20px; display: flex; flex-direction: column; justify-content: center; border: 1px solid var(--border); }
+    .verdict-card.high   { background: #fdf0f0; border-left: 4px solid #B12704; }
+    .verdict-card.medium { background: #fff8f0; border-left: 4px solid #FF9900; }
+    .verdict-card.low    { background: #f0faf5; border-left: 4px solid #067D62; }
+
+    .verdict-title { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+    .verdict-card.high   .verdict-title { color: #B12704; }
+    .verdict-card.medium .verdict-title { color: #C45500; }
+    .verdict-card.low    .verdict-title { color: #067D62; }
+
+    .conf-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+    .conf-high   { background: #fcd5d5; color: #7e1919; }
+    .conf-medium { background: #fde8c8; color: #7a4209; }
+    .conf-low    { background: #c9ead9; color: #1a5c3c; }
+
+    /* Analysis Bars */
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .bar-label { width: 160px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+    .bar-track { flex: 1; background: #21262d; border-radius: 4px; height: 10px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--amazon-orange), #FF4500); transition: width 0.6s cubic-bezier(.25,.8,.25,1); }
+    .bar-val { width: 44px; font-size: 12px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+
+    /* ===== OPTIMIZER RESULTS ===== */
+    .opt-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+    @media(max-width: 768px) { .opt-grid { grid-template-columns: 1fr; } }
+    .opt-section-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+
+    pre#optCode {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: var(--radius);
+      padding: 16px;
+      overflow-x: auto;
+      color: #c9d1d9;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.7;
+      max-height: 380px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    .opt-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amazon-green);
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .opt-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amazon-green); margin-top: 4px; flex-shrink: 0; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .single-editor { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; transition: box-shadow 0.2s, border-color 0.2s; }
+    .single-editor:focus-within { border-color: var(--amazon-orange); box-shadow: 0 0 0 3px rgba(255,153,0,0.2); }
+    .single-editor textarea { height: 220px; }
+
+    .footer-stripe { margin-top: 24px; padding: 12px 0; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  </style>
+</head>
+<body class="dark"> <header class="topbar">
+  <div class="topbar-left">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+        </svg>
+      </div>
+      <div class="brand-name">
+        <div class="title">Code Optimizer &amp; Plagiarism Detector</div>
+        <div class="subtitle">Academic Code Analysis Engine</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="univ-logo">
+    <div class="univ-info">
+      <div class="univ-name">Graphic Era Hill<br>University</div>
+      <div class="univ-tagline">Transforming Dreams Into Reality</div>
+    </div>
+    <img src="logo.png" alt="University Logo">
+  </div>
+</header>
+
+<nav class="secondary-nav">
+  <button class="tab active" onclick="switchTab('plagiarism')">&#128270; Similarity Scan</button>
+  <button class="tab" onclick="switchTab('optimizer')">&#9889; Code Optimizer</button>
+</nav>
+
+<main>
+  <div class="api-row">
+    <span class="api-label">API Host</span>
+    <div class="api-dot"></div>
+    <input type="text" id="apiBase" value="http://localhost:8000" />
+    <span style="font-size:11px;color:var(--text-muted);white-space:nowrap">CONNECTED</span>
+  </div>
+
+  <div id="pPanel" class="panel active">
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="dot"></span>Code Input — Dual Source Comparison</h3>
+        <span style="font-size:11px;color:var(--text-muted);">Paste two code snippets below</span>
+      </div>
+      <div class="card-body">
+        <div class="editors-grid">
+          <div class="editor-card">
+            <div class="editor-label"><span class="badge">A</span> Source Code — Input A</div>
+            <textarea id="code1" placeholder="// Paste first code snippet here..."></textarea>
+          </div>
+          <div class="editor-card">
+            <div class="editor-label"><span class="badge">B</span> Source Code — Input B</div>
+            <textarea id="code2" placeholder="// Paste second code snippet here..."></textarea>
+          </div>
+        </div>
+        <div class="action-row">
+          <button class="run" id="pBtn" onclick="runPlagiarism()"><span>&#128270; Check Similarity</span></button>
+        </div>
+        <div class="error-box" id="pErr"></div>
+      </div>
+    </div>
+
+    <div class="results-panel" id="pResults">
+      <div class="card">
+        <div class="card-header">
+          <h3><span class="dot"></span>Analysis Report</h3>
+          <span style="font-size:11px;color:var(--text-muted);">Similarity Index</span>
+        </div>
+        <div class="card-body">
+          <div class="score-section">
+            <div class="score-card">
+              <div class="score-number" id="finalScore">0%</div>
+              <div class="score-label">Similarity Index</div>
+            </div>
+            <div class="verdict-card low" id="verdict">
+              <div class="verdict-title" id="verdictText">Awaiting analysis...</div>
+              <div id="confBadge" class="conf-badge conf-low">Low confidence</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="bars-section">
+            <div class="bar-row">
+              <div class="bar-label">AST Structure</div>
+              <div class="bar-track"><div class="bar-fill" id="barAst" style="width:0%"></div></div>
+              <div class="bar-val" id="valAst">0%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">Token Hash</div>
+              <div class="bar-track"><div class="bar-fill" id="barToken" style="width:0%"></div></div>
+              <div class="bar-val" id="valToken">0%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">Pattern Recognition</div>
+              <div class="bar-track"><div class="bar-fill" id="barPattern" style="width:0%"></div></div>
+              <div class="bar-val" id="valPattern">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="oPanel" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <h3><span class="dot"></span>Code Input — Optimization Target</h3>
+        <span style="font-size:11px;color:var(--text-muted);">Paste code to optimize</span>
+      </div>
+      <div class="card-body">
+        <div class="single-editor">
+          <div class="editor-label"><span class="badge">IN</span> Raw Source Code</div>
+          <textarea id="codeOpt" placeholder="// Paste code here to optimize..."></textarea>
+        </div>
+        <div class="action-row">
+          <button class="run" id="oBtn" onclick="runOptimizer()"><span>&#9889; Optimize Code</span></button>
+        </div>
+        <div class="error-box" id="oErr"></div>
+      </div>
+    </div>
+
+    <div class="results-panel" id="oResults">
+      <div class="card">
+        <div class="card-header"><h3><span class="dot"></span>Optimization Report</h3></div>
+        <div class="card-body">
+          <div class="opt-grid">
+            <div>
+              <div class="opt-section-label">&#128196; Optimized Output</div>
+              <pre id="optCode">// Optimized code will appear here...</pre>
+            </div>
+            <div>
+              <div class="opt-section-label">&#9989; Enhancement Log</div>
+              <div id="optList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-stripe">
+    Code Optimizer &amp; Plagiarism Detector &mdash; Graphic Era Hill University &mdash; BATCH 2027
+  </div>
+</main>
+
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', i === (tab === 'plagiarism' ? 0 : 1));
+    });
+    document.getElementById('pPanel').classList.toggle('active', tab === 'plagiarism');
+    document.getElementById('oPanel').classList.toggle('active', tab === 'optimizer');
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    if (loading) {
+      btn.innerHTML = '<div class="spinner"></div><span>Analyzing...</span>';
+    } else {
+      btn.innerHTML = btnId === 'pBtn' ? '<span>&#128270; Check Similarity</span>' : '<span>&#9889; Optimize Code</span>';
+    }
+  }
+
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+  function hideError(id) {
+    document.getElementById(id).classList.remove('show');
+  }
+
+  async function runPlagiarism() {
+    const c1 = document.getElementById('code1').value.trim();
+    const c2 = document.getElementById('code2').value.trim();
+    if (!c1 || !c2) { showError('pErr', 'Please enter code in both panels.'); return; }
+    hideError('pErr');
+    document.getElementById('pResults').classList.remove('show');
+    setLoading('pBtn', true);
+    try {
+      const base = document.getElementById('apiBase').value.replace(/\/$/, '');
+      const res = await fetch(`${base}/plagiarism-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code1: c1, code2: c2 })
+      });
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+      const d = await res.json();
+      renderPlagiarism(d);
+    } catch (e) {
+      showError('pErr', e.message);
+    } finally {
+      setLoading('pBtn', false);
+    }
+  }
+
+  function renderPlagiarism(d) {
+    document.getElementById('finalScore').textContent = d.final_score.toFixed(1) + '%';
+    const cb = document.getElementById('confBadge');
+    cb.textContent = d.confidence + ' confidence';
+    cb.className = `conf-badge conf-${d.confidence}`;
+
+    const b = d.breakdown;
+    document.getElementById('barAst').style.width = Math.min(b.ast || 0, 100) + '%';
+    document.getElementById('valAst').textContent = (b.ast || 0).toFixed(1) + '%';
+    document.getElementById('barToken').style.width = Math.min(b.token || 0, 100) + '%';
+    document.getElementById('valToken').textContent = (b.token || 0).toFixed(1) + '%';
+    document.getElementById('barPattern').style.width = Math.min(b.pattern || 0, 100) + '%';
+    document.getElementById('valPattern').textContent = (b.pattern || 0).toFixed(1) + '%';
+
+    const vEl = document.getElementById('verdict');
+    const vTxt = document.getElementById('verdictText');
+    if (d.final_score >= 70) {
+      vEl.className = 'verdict-card high';
+      vTxt.textContent = 'High similarity — likely plagiarism.';
+    } else if (d.final_score >= 40) {
+      vEl.className = 'verdict-card medium';
+      vTxt.textContent = 'Moderate similarity — review manually.';
+    } else {
+      vEl.className = 'verdict-card low';
+      vTxt.textContent = 'Low similarity — likely original work.';
+    }
+    document.getElementById('pResults').classList.add('show');
+  }
+
+  async function runOptimizer() {
+    const code = document.getElementById('codeOpt').value.trim();
+    if (!code) { showError('oErr', 'Please enter code to optimize.'); return; }
+    hideError('oErr');
+    document.getElementById('oResults').classList.remove('show');
+    setLoading('oBtn', true);
+    try {
+      const base = document.getElementById('apiBase').value.replace(/\/$/, '');
+      const res = await fetch(`${base}/optimize-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      const d = await res.json();
+      renderOptimizer(d);
+    } catch (e) {
+      showError('oErr', e.message);
+    } finally {
+      setLoading('oBtn', false);
+    }
+  }
+
+  function renderOptimizer(d) {
+    document.getElementById('optCode').textContent = d.optimized_code || '// No changes required';
+    const list = document.getElementById('optList');
+    list.innerHTML = d.optimizations?.length 
+      ? d.optimizations.map(o => `<div class="opt-item"><div class="opt-dot"></div><span>${o}</span></div>`).join('')
+      : '<div class="opt-item"><div class="opt-dot"></div><span style="color:var(--text-muted)">No optimizations applied.</span></div>';
+    document.getElementById('oResults').classList.add('show');
+  }
+</script>
+</body>
+</html>
