@@ -1,6 +1,66 @@
 > **DISCLAIMER:** This project is an educational research tool designed for code analysis and optimization. The plagiarism detection scores are based on AST (Abstract Syntax Tree) structural mapping and should be used as a supplementary reference, not as a definitive verdict on academic integrity.
+int x = 50
+int y = 0
+int z = x + y
 
+int scale = 1
+int final_score = z * scale
 
+if final_score:
+    int bonus = 5 + 5
+    print final_score + bonus
+else:
+    print "No Score".
+
+a-
+
+func get_total(val):
+    int tax_rate = 10
+    int summed = val + tax_rate
+    return summed
+
+int x = 100
+int y = 10
+int z = x + y
+
+int m = 1
+int base = z * m
+
+if base:
+    int result = get_total(base)
+    print result
+else:
+    print "error"
+
+int i = 3
+while i:
+    print i
+    i--
+
+B-----
+func calculate_tax(amount):
+    int rate = 5 + 5
+    int total = amount + rate
+    return total
+
+int price = 100
+int shipping = 10
+int subtotal = price + shipping
+
+# Test for identity optimization (x * 1)
+int multiplier = 1
+int final_base = subtotal * multiplier
+
+if final_base:
+    int grand_total = calculate_tax(final_base)
+    print grand_total
+else:
+    print "invalid price"
+
+int count = 3
+while count:
+    print count
+    count--
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------
