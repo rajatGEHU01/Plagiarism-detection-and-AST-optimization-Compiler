@@ -1,4 +1,20 @@
-> **DISCLAIMER:** This project is an educational research tool designed for code analysis and optimization. The plagiarism detection scores are based on AST (Abstract Syntax Tree) structural mapping and should be used as a supplementary reference, not as a definitive verdict on academic integrity.
+> *
+int x = 10
+int y = 20
+int total = x + y
+print total
+
+
+func get_val():
+    return 10
+
+int x = get_val()
+int y = 20
+int total = x + y
+print total
+
+
+*DISCLAIMER:** This project is an educational research tool designed for code analysis and optimization. The plagiarism detection scores are based on AST (Abstract Syntax Tree) structural mapping and should be used as a supplementary reference, not as a definitive verdict on academic integrity.
 int x = 50
 int y = 0
 int z = x + y
